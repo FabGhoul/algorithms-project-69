@@ -1,3 +1,14 @@
+const checkDocShoot = (docToken, shootToken) => {
+  const doc = docToken.match(/\w+/g);
+  const shoot = shootToken.match(/\w+/g);
+
+  if (doc.indexOf(' ' + shoot + ' ') > -1 || doc.indexOf(shoot + ' ') === 0 || doc.indexOf(' ' + shoot) === doc.length - shoot.length - 1) {
+    return true;
+  }
+
+  return false;
+};
+
 /**
  * @param {Array} docs
  * @param {String} shoot
@@ -11,12 +22,10 @@ const search = (docs, shoot) => {
     return [];
   }
 
-  const searchString = ' ' + shoot + ' '
-
   const result = []
 
   for (const doc of docs) {
-    if (doc.text.indexOf(searchString) > -1) {
+    if (checkDocShoot(doc, shoot)) {
       result.push(doc.id);
     }
   }
