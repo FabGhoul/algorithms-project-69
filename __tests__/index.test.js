@@ -7,5 +7,5 @@ test('search', () => {
   const doc3 = { id: 'doc3', text: "I'm your shooter." };
   const docs = [doc1, doc2, doc3];
 
-  expect(search(docs, 'shoot')).toStrictEqual(['doc1', 'doc2']);
+  expect(search(docs, 'shoot')).toStrictEqual(['doc2', 'doc1']);
 });

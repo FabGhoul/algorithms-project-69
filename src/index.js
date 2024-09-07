@@ -1,12 +1,27 @@
-const checkDocShoot = (docToken, shootToken) => {
+/*const checkDocShoot = (docToken, shootToken) => {
   const doc = docToken.match(/\w+/g);
-  const shoot = shootToken.match(/\w+/g);
+  const shoot = shootToken.match(/\w+/g)[0];
 
-  if (doc.indexOf(' ' + shoot + ' ') > -1 || doc.indexOf(shoot + ' ') === 0 || doc.indexOf(' ' + shoot) === doc.length - shoot.length - 1) {
+  if (doc.includes(shoot)) {
     return true;
   }
 
   return false;
+};*/
+
+const countDocShoot = (docToken, shootToken) => {
+  const doc = docToken.match(/\w+/g);
+  const shoot = shootToken.match(/\w+/g)[0];
+
+  let count = 0;
+
+  for (const word of doc) {
+    if (word === shoot) {
+      count +=1;
+    }
+  }
+
+  return count;
 };
 
 /**
@@ -25,12 +40,16 @@ const search = (docs, shoot) => {
   const result = []
 
   for (const doc of docs) {
-    if (checkDocShoot(doc, shoot)) {
-      result.push(doc.id);
+    const shootCount = countDocShoot(doc.text, shoot);
+    if (shootCount > 0) {
+      result.push({ id: doc.id, count: shootCount });
+      // А можно на каждой итерации, определять, куда будем ставить 
     }
   }
 
-  return result;
+  result.sort((a, b) => b.count - a.count);
+
+  return result.map((item) => item.id);
 };
 
 export default search;
