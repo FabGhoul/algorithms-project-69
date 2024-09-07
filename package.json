@@ -27,6 +27,7 @@
   "homepage": "https://github.com/FabGhoul/algorithms-project-69#readme",
   "dependencies": {
     "debug": "^4.3.4",
+    "lint-staged": "^15.2.9",
     "lodash": "^4.17.21"
   },
   "lint-staged": {
@@ -42,7 +43,6 @@
     "globals": "^15.0.0",
     "jest": "^29.7.0",
     "jest-cli": "^29.7.0",
-    "lint-staged": "^15.2.9",
     "simple-git-hooks": "^2.11.1"
   }
 }
