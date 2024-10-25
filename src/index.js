@@ -7,18 +7,20 @@ const searchByIndex = (index, shootToken, docsCount) => {
 
   const docsMethric = {};
   for (const word of shootArr) {
-    const termCount = Object.keys(index[word]).length
-    const wordIdf = Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
+    if (!!index[word]) {
+      const termCount = Object.keys(index[word]).length
+      const wordIdf = Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
 
-    for (const docId in index[word]) {
-      const wordData = index[word][docId]
-      if (!docsMethric.hasOwnProperty(docId)) {
-        docsMethric[docId] = { tfIdf: 0 };
+      for (const docId in index[word]) {
+        const wordData = index[word][docId]
+        if (!docsMethric.hasOwnProperty(docId)) {
+          docsMethric[docId] = {tfIdf: 0};
+        }
+
+        const wordTf = wordData.count / wordData.totalCount;
+
+        docsMethric[docId].tfIdf += wordTf * wordIdf;
       }
-
-      const wordTf = wordData.count / wordData.totalCount;
-
-      docsMethric[docId].tfIdf += wordTf * wordIdf;
     }
   }
 
