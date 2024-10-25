@@ -1,50 +1,42 @@
-const countDocWord = (docArr, word) => {
-  let count = 0;
+/**
+ * @param {Object} index
+ * @param {String} shootToken
+ */
+const searchByIndex = (index, shootToken) => {
+  const shootArr = shootToken.match(/\w+/g).map((item) => item.toLowerCase());
 
-  for (const item of docArr) {
-    if (item === word) {
-      count +=1;
+  const docsMethric = {};
+  for (const word of shootArr) {
+    for (const docId in index[word]) {
+      if (!docsMethric.hasOwnProperty(docId)) {
+        docsMethric[docId] = { wordsCount: 0, totalCount: 0 };
+      }
+
+      docsMethric[docId].wordsCount += 1;
+      docsMethric[docId].totalCount += index[word][docId].count;
     }
   }
 
-  return count;
+  return Object.keys(docsMethric).map((id) => ({ id, ...docsMethric[id] }));
 };
 
 /**
- * Возвращает количество найденных слов и сумму их вхождений
- * @param docToken Необработанная строка документа
- * @param shootToken Необработанная поисковая строка
- * @returns {{wordsCount: number, totalCount: number}}
+ * @param {Array} docs
  */
-const searchDocShoot = (docToken, shootToken) => {
-  const docArr = docToken.match(/\w+/g).map((item) => item.toLowerCase());
-  const shootArr = shootToken.match(/\w+/g).map((item) => item.toLowerCase());
-
-  let wordsCount = 0;
-  let totalCount = 0;
-
-  for (const word of shootArr) {
-    if (docArr.includes(word)) {
-      wordsCount += 1;
-      totalCount += countDocWord(docArr, word);
-    }
-  }
-
-  return { wordsCount, totalCount };
-};
-
 export const indexReverse = (docs) => {
   const index = {};
   for (const doc of docs) {
     const docArr = doc.text.match(/\w+/g).map((item) => item.toLowerCase());
     for (const item of docArr) {
       if (!index.hasOwnProperty(item)) {
-        index[item] = [];
+        index[item] = {};
       }
 
-      if (!index[item].includes(doc.id)) {
-        index[item].push(doc.id);
+      if (!index[item].hasOwnProperty(doc.id)) {
+        index[item][doc.id] = { count: 0 };
       }
+
+      index[item][doc.id].count += 1;
     }
   }
 
@@ -64,14 +56,8 @@ const search = (docs, shoot) => {
     return [];
   }
 
-  const result = []
-
-  for (const doc of docs) {
-    const { wordsCount, totalCount } = searchDocShoot(doc.text, shoot);
-    if (wordsCount > 0) {
-      result.push({ id: doc.id, wordsCount, totalCount });
-    }
-  }
+  const index = indexReverse(docs);
+  const result = searchByIndex(index, shoot);
 
   result.sort((a, b) => {
     if (a.wordsCount === b.wordsCount) {

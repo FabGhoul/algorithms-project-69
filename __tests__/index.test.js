@@ -28,8 +28,8 @@ test('indexReverse', () => {
   const docs = [doc1, doc2];
 
   expect(indexReverse(docs)).toStrictEqual({
-    some: ['doc1', 'doc2'],
-    text: ['doc1', 'doc2'],
-    too: ['doc2'],
+    some: { doc1: { count: 1 }, doc2: { count: 1 } },
+    text: { doc1: { count: 1 }, doc2: { count: 1 } },
+    too: { doc2: { count: 1 } },
   });
 });
