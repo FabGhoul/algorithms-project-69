@@ -2,18 +2,23 @@
  * @param {Object} index
  * @param {String} shootToken
  */
-const searchByIndex = (index, shootToken) => {
+const searchByIndex = (index, shootToken, docsCount) => {
   const shootArr = shootToken.match(/\w+/g).map((item) => item.toLowerCase());
 
   const docsMethric = {};
   for (const word of shootArr) {
+    const termCount = Object.keys(index[word]).length
+    const wordIdf = Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
+
     for (const docId in index[word]) {
+      const wordData = index[word][docId]
       if (!docsMethric.hasOwnProperty(docId)) {
-        docsMethric[docId] = { wordsCount: 0, totalCount: 0 };
+        docsMethric[docId] = { tfIdf: 0 };
       }
 
-      docsMethric[docId].wordsCount += 1;
-      docsMethric[docId].totalCount += index[word][docId].count;
+      const wordTf = wordData.count / wordData.totalCount;
+
+      docsMethric[docId].tfIdf += wordTf * wordIdf;
     }
   }
 
@@ -33,7 +38,7 @@ export const indexReverse = (docs) => {
       }
 
       if (!index[item].hasOwnProperty(doc.id)) {
-        index[item][doc.id] = { count: 0 };
+        index[item][doc.id] = { count: 0, totalCount: docArr.length };
       }
 
       index[item][doc.id].count += 1;
@@ -57,15 +62,9 @@ const search = (docs, shoot) => {
   }
 
   const index = indexReverse(docs);
-  const result = searchByIndex(index, shoot);
+  const result = searchByIndex(index, shoot, docs.length);
 
-  result.sort((a, b) => {
-    if (a.wordsCount === b.wordsCount) {
-      return a.totalCount < b.totalCount ? 1 : -1;
-    }
-
-    return a.wordsCount < b.wordsCount ? 1 : -1;
-  });
+  result.sort((a, b) => a.tfIdf < b.tfIdf ? 1 : -1);
 
   return result.map((item) => item.id);
 };
