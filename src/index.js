@@ -1,27 +1,36 @@
-/*const checkDocShoot = (docToken, shootToken) => {
-  const doc = docToken.match(/\w+/g);
-  const shoot = shootToken.match(/\w+/g)[0];
-
-  if (doc.includes(shoot)) {
-    return true;
-  }
-
-  return false;
-};*/
-
-const countDocShoot = (docToken, shootToken) => {
-  const doc = docToken.match(/\w+/g);
-  const shoot = shootToken.match(/\w+/g)[0];
-
+const countDocWord = (docArr, word) => {
   let count = 0;
 
-  for (const word of doc) {
-    if (word === shoot) {
+  for (const item of docArr) {
+    if (item === word) {
       count +=1;
     }
   }
 
   return count;
+};
+
+/**
+ * Возвращает количество найденных слов и сумму их вхождений
+ * @param docToken Необработанная строка документа
+ * @param shootToken Необработанная поисковая строка
+ * @returns {{wordsCount: number, totalCount: number}}
+ */
+const searchDocShoot = (docToken, shootToken) => {
+  const docArr = docToken.match(/\w+/g).map((item) => item.toLowerCase());
+  const shootArr = shootToken.match(/\w+/g).map((item) => item.toLowerCase());
+
+  let wordsCount = 0;
+  let totalCount = 0;
+
+  for (const word of shootArr) {
+    if (docArr.includes(word)) {
+      wordsCount += 1;
+      totalCount += countDocWord(docArr, word)
+    }
+  }
+
+  return { wordsCount, totalCount };
 };
 
 /**
@@ -40,14 +49,19 @@ const search = (docs, shoot) => {
   const result = []
 
   for (const doc of docs) {
-    const shootCount = countDocShoot(doc.text, shoot);
-    if (shootCount > 0) {
-      result.push({ id: doc.id, count: shootCount });
-      // А можно на каждой итерации, определять, куда будем ставить 
+    const { wordsCount, totalCount } = searchDocShoot(doc.text, shoot);
+    if (wordsCount > 0) {
+      result.push({ id: doc.id, wordsCount, totalCount });
     }
   }
 
-  result.sort((a, b) => b.count - a.count);
+  result.sort((a, b) => {
+    if (a.wordsCount === b.wordsCount) {
+      return a.totalCount < b.totalCount ? 1 : -1
+    }
+
+    return a.wordsCount < b.wordsCount ? 1 : -1
+  });
 
   return result.map((item) => item.id);
 };
