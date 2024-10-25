@@ -26,11 +26,29 @@ const searchDocShoot = (docToken, shootToken) => {
   for (const word of shootArr) {
     if (docArr.includes(word)) {
       wordsCount += 1;
-      totalCount += countDocWord(docArr, word)
+      totalCount += countDocWord(docArr, word);
     }
   }
 
   return { wordsCount, totalCount };
+};
+
+export const indexReverse = (docs) => {
+  const index = {};
+  for (const doc of docs) {
+    const docArr = doc.text.match(/\w+/g).map((item) => item.toLowerCase());
+    for (const item of docArr) {
+      if (!index.hasOwnProperty(item)) {
+        index[item] = [];
+      }
+
+      if (!index[item].includes(doc.id)) {
+        index[item].push(doc.id);
+      }
+    }
+  }
+
+  return index;
 };
 
 /**
@@ -57,10 +75,10 @@ const search = (docs, shoot) => {
 
   result.sort((a, b) => {
     if (a.wordsCount === b.wordsCount) {
-      return a.totalCount < b.totalCount ? 1 : -1
+      return a.totalCount < b.totalCount ? 1 : -1;
     }
 
-    return a.wordsCount < b.wordsCount ? 1 : -1
+    return a.wordsCount < b.wordsCount ? 1 : -1;
   });
 
   return result.map((item) => item.id);

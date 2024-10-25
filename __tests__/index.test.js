@@ -1,5 +1,5 @@
 import { test, expect } from "@jest/globals";
-import search from "../src/index.js";
+import search, { indexReverse } from "../src/index.js";
 
 test('search', () => {
   const doc1 = { id: 'doc1', text: "I can't shoot straight unless I've had a pint!" };
@@ -20,4 +20,16 @@ test('search', () => {
   const docs = [doc1, doc2, doc3, doc4, doc5, doc6];
 
   expect(search(docs, 'one two three')).toStrictEqual(['doc4', 'doc2', 'doc6', 'doc3', 'doc5']);
+});
+
+test('indexReverse', () => {
+  const doc1 = { id: 'doc1', text: 'some text' };
+  const doc2 = { id: 'doc2', text: 'some text too' };
+  const docs = [doc1, doc2];
+
+  expect(indexReverse(docs)).toStrictEqual({
+    some: ['doc1', 'doc2'],
+    text: ['doc1', 'doc2'],
+    too: ['doc2'],
+  });
 });
