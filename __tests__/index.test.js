@@ -1,7 +1,7 @@
 import { test, expect } from '@jest/globals';
 import search, { indexReverse } from '../src/index.js';
 
-test('search', () => {
+test('search 1', () => {
   const doc1 = { id: 'doc1', text: "I can't shoot straight unless I've had a pint!" };
   const doc2 = { id: 'doc2', text: "Don't shoot shoot shoot that thing at me." };
   const doc3 = { id: 'doc3', text: "I'm your shooter." };
@@ -10,7 +10,7 @@ test('search', () => {
   expect(search(docs, 'shoot at')).toStrictEqual(['doc2', 'doc1']);
 });
 
-test('search', () => {
+test('search 2', () => {
   const doc1 = { id: 'doc1', text: 'Ten eleven twelve thirteen fourteen' };
   const doc2 = { id: 'doc2', text: 'One two three' };
   const doc3 = { id: 'doc3', text: 'Two cats eat one fish.' };
