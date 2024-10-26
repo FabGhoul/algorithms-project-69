@@ -6,23 +6,27 @@ const searchByIndex = (index, shootToken, docsCount) => {
   const shootArr = shootToken.match(/\w+/g).map((item) => item.toLowerCase());
 
   const docsMethric = {};
-  for (const word of shootArr) {
-    if (!!index[word]) {
-      const termCount = Object.keys(index[word]).length
+  shootArr.forEach((word) => {
+    if (index[word]) {
+      const wordDocIds = Object.keys(index[word]);
+
+      const termCount = wordDocIds.length;
       const wordIdf = Math.log2(1 + (docsCount - termCount + 1) / (termCount + 0.5));
 
-      for (const docId in index[word]) {
-        const wordData = index[word][docId]
-        if (!docsMethric.hasOwnProperty(docId)) {
-          docsMethric[docId] = {tfIdf: 0};
+      wordDocIds.forEach((docId) => {
+        if (index[word][docId]) {
+          const wordData = index[word][docId];
+          if (!(docId in docsMethric)) {
+            docsMethric[docId] = { tfIdf: 0 };
+          }
+
+          const wordTf = wordData.count / wordData.totalCount;
+
+          docsMethric[docId].tfIdf += wordTf * wordIdf;
         }
-
-        const wordTf = wordData.count / wordData.totalCount;
-
-        docsMethric[docId].tfIdf += wordTf * wordIdf;
-      }
+      });
     }
-  }
+  });
 
   return Object.keys(docsMethric).map((id) => ({ id, ...docsMethric[id] }));
 };
@@ -32,20 +36,20 @@ const searchByIndex = (index, shootToken, docsCount) => {
  */
 export const indexReverse = (docs) => {
   const index = {};
-  for (const doc of docs) {
+  docs.forEach((doc) => {
     const docArr = doc.text.match(/\w+/g).map((item) => item.toLowerCase());
-    for (const item of docArr) {
-      if (!index.hasOwnProperty(item)) {
+    docArr.forEach((item) => {
+      if (!(item in index)) {
         index[item] = {};
       }
 
-      if (!index[item].hasOwnProperty(doc.id)) {
+      if (!(doc.id in index[item])) {
         index[item][doc.id] = { count: 0, totalCount: docArr.length };
       }
 
       index[item][doc.id].count += 1;
-    }
-  }
+    });
+  });
 
   return index;
 };
@@ -66,7 +70,7 @@ const search = (docs, shoot) => {
   const index = indexReverse(docs);
   const result = searchByIndex(index, shoot, docs.length);
 
-  result.sort((a, b) => a.tfIdf < b.tfIdf ? 1 : -1);
+  result.sort((a, b) => (a.tfIdf < b.tfIdf ? 1 : -1));
 
   return result.map((item) => item.id);
 };
